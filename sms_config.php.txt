@@ -1,0 +1,85 @@
+```php
+<?php
+declare(strict_types=1);
+
+// Keep these credentials private.
+const TERMII_API_KEY = 'YOUR_TERMII_API_KEY';
+const TERMII_SENDER_ID = 'YOUR_APPROVED_SENDER_ID';
+
+function sendChatWaveSMS(string $phone, string $message): bool
+{
+    if (
+        TERMII_API_KEY === 'tlv_1XG2JhVCBFwghviC7WOnyYfmVyVQy3_24RHiNt5L-iE' ||
+        TERMII_SENDER_ID === 'YOUR_APPROVED_SENDER_ID'
+    ) {
+        error_log('ChatWave SMS: Termii credentials are not configured.');
+        return false;
+    }
+
+    // Convert Nigerian numbers such as 08012345678 to 2348012345678.
+    $phone = preg_replace('/[\s()+-]/', '', $phone) ?? '';
+
+    if (preg_match('/^0[789][01]\d{8}$/', $phone)) {
+        $phone = '234' . substr($phone, 1);
+    }
+
+    if (!preg_match('/^234[789][01]\d{8}$/', $phone)) {
+        error_log('ChatWave SMS: Invalid Nigerian phone number format.');
+        return false;
+    }
+
+    $payload = [
+        'api_key' => TERMII_API_KEY,
+        'to'      => $phone,
+        'from'    => TERMII_SENDER_ID,
+        'sms'     => $message,
+        'type'    => 'plain',
+        'channel' => 'dnd',
+    ];
+
+    $context = stream_context_create([
+        'http' => [
+            'method' => 'POST',
+            'header' =>
+                "Content-Type: application/json\r\n" .
+                "Accept: application/json\r\n",
+            'content' => json_encode($payload),
+            'timeout' => 20,
+            'ignore_errors' => true,
+        ],
+        'ssl' => [
+            'verify_peer' => true,
+            'verify_peer_name' => true,
+        ],
+    ]);
+
+    $response = @file_get_contents(
+        'https://api.ng.termii.com/api/sms/send',
+        false,
+        $context
+    );
+
+    if ($response === false) {
+        error_log('ChatWave SMS: Could not contact Termii.');
+        return false;
+    }
+
+    $result = json_decode($response, true);
+    $status = $http_response_header[0] ?? '';
+
+    if (
+        preg_match('/\s2\d\d\s/', $status) &&
+        is_array($result) &&
+        ($result['message'] ?? '') === 'Successfully Sent'
+    ) {
+        return true;
+    }
+
+    error_log(
+        'ChatWave SMS delivery error: ' .
+        substr($response, 0, 1000)
+    );
+
+    return false;
+}
+```

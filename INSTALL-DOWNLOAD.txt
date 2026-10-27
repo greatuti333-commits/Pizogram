@@ -1,0 +1,28 @@
+CHATWAVE UPGRADED DOWNLOAD — WINDOWS INSTALLATION
+================================================
+
+BEFORE YOU START
+1. Back up C:\rrr\htdocs\ChatWave and export the chatwave database in phpMyAdmin.
+2. This ZIP is a project update, not a Windows .EXE. ChatWave is a PHP/MySQL website and runs through Apache/MySQL.
+
+INSTALL
+1. Extract the ZIP.
+2. Copy the contents of the included ChatWave folder into C:\rrr\htdocs\ChatWave, replacing project files when asked. Keep your own config.php database credentials if they differ from the included defaults.
+3. Open http://localhost/phpmyadmin/.
+4. Select the chatwave database, choose Import, select ChatWave/upgrade.sql, and click Import/Go. Do not import database.sql over your live database unless you have reviewed it and made a backup.
+5. Confirm config.php points to the correct database. Defaults in this package are host 127.0.0.1, database chatwave, user root, blank password.
+6. In phpMyAdmin > chatwave > SQL, run this using your registered account email:
+   UPDATE users SET role='admin', account_status='active' WHERE email='YOUR-REGISTERED-EMAIL@example.com';
+7. Sign out of ChatWave and sign back in with that same account.
+8. Open http://localhost/ChatWave/admin.php.
+
+WHAT WAS UPDATED
+- Admin dashboard status actions now match the database values active/frozen/banned.
+- Login refuses frozen or banned accounts.
+- API requests re-check account status so a user frozen/banned during an existing session loses API access.
+- Removed database diagnostic scripts from the downloadable package.
+- Removed pre-existing uploaded files from the package to avoid redistributing personal media; your local uploads folder is not deleted by this ZIP.
+
+NOTES
+- A few advanced features need configuration to work: email recovery requires SMTP/PHP mail setup; SMS recovery needs an SMS provider; AI needs a server-side API key; camera/microphone calling requires browser permissions and HTTPS on a public deployment.
+- Test locally before deploying publicly. Do not expose the local development server to the internet without a security review, HTTPS, backups, rate limits, and production database credentials.

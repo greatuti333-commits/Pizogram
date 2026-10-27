@@ -1,0 +1,6 @@
+Optional server environment variables (configure in Apache/PHP server environment; do not put real keys in public files):
+CHATWAVE_MAIL_FROM=no-reply@your-domain.example
+CHATWAVE_AI_API_KEY=your-secret-server-side-api-key
+CHATWAVE_AI_MODEL=gpt-4o-mini
+
+This package does not include an SMS provider integration. Add provider-specific server-side credentials and a vetted adapter before enabling SMS recovery.
